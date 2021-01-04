@@ -958,7 +958,7 @@ public class JavaDeclarationDelegateTestCase extends AbstractJavaExtensionDeclar
   @Operations({HeisenbergExtension.class})
   public static class HeisenbergWithParameterGroupDefaultName {
 
-    @ParameterGroup(name = DEFAULT_GROUP_NAME)
+    @org.mule.sdk.api.annotation.param.ParameterGroup(name = DEFAULT_GROUP_NAME)
     private PersonalInfo personalInfo;
   }
 

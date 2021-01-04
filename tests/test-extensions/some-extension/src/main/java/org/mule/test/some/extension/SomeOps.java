@@ -46,7 +46,7 @@ public class SomeOps {
    * @param oneParameterGroup some test operation config with a isOneRequired exclusive-optional configuration
    * @return one of the configs arguments
    */
-  public String oneRequiredParameterResolverOperation(@ParameterGroup(
+  public String oneRequiredParameterResolverOperation(@org.mule.sdk.api.annotation.param.ParameterGroup(
       name = "Awesome Parameter Group", showInDsl = true) SomeParameterGroupOneRequiredConfig oneParameterGroup) {
     return oneParameterGroup.getSomeParameter() != null ? oneParameterGroup.getSomeParameter()
         : oneParameterGroup.getSomeOtherParameter();

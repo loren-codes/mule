@@ -50,19 +50,31 @@ public interface ExtensionParameter extends WithType, WithAnnotations, NamedObje
   Set<Class<?>> IMPLICIT_ARGUMENT_TYPES = ImmutableSet.<Class<?>>builder()
       .add(Error.class)
       .add(SourceCallbackContext.class)
+      .add(org.mule.sdk.api.runtime.source.SourceCallbackContext.class)
       .add(CompletionCallback.class)
+      .add(org.mule.sdk.api.runtime.process.CompletionCallback.class)
       .add(VoidCompletionCallback.class)
+      .add(org.mule.sdk.api.runtime.process.VoidCompletionCallback.class)
       .add(SourceCompletionCallback.class)
+      .add(org.mule.sdk.api.runtime.source.SourceCompletionCallback.class)
       .add(MediaType.class)
       .add(AuthenticationHandler.class)
+      .add(org.mule.sdk.api.security.AuthenticationHandler.class)
       .add(FlowListener.class)
+      .add(org.mule.sdk.api.runtime.operation.FlowListener.class)
       .add(StreamingHelper.class)
+      .add(org.mule.sdk.api.runtime.streaming.StreamingHelper.class)
       .add(SourceResult.class)
+      .add(org.mule.sdk.api.runtime.source.SourceResult.class)
       .add(ComponentLocation.class)
       .add(Chain.class)
+      .add(org.mule.sdk.api.runtime.route.Chain.class)
       .add(CorrelationInfo.class)
+      .add(org.mule.sdk.api.runtime.parameter.CorrelationInfo.class)
       .add(NotificationEmitter.class)
+      .add(org.mule.sdk.api.notification.NotificationEmitter.class)
       .add(ExtensionsClient.class)
+      .add(org.mule.sdk.api.client.ExtensionsClient.class)
       .add(RetryPolicyTemplate.class)
       .build();
 
@@ -72,7 +84,9 @@ public interface ExtensionParameter extends WithType, WithAnnotations, NamedObje
    */
   default boolean shouldBeAdvertised() {
     return !(IMPLICIT_ARGUMENT_TYPES.stream().anyMatch(aClass -> getType().isAssignableTo(aClass))
-        || isAnnotatedWith(Config.class) || isAnnotatedWith(Connection.class) || isAnnotatedWith(DefaultEncoding.class));
+        || isAnnotatedWith(Config.class) || isAnnotatedWith(org.mule.sdk.api.annotation.param.Config.class)
+        || isAnnotatedWith(org.mule.sdk.api.annotation.param.Connection.class) || isAnnotatedWith(Connection.class)
+        || isAnnotatedWith(DefaultEncoding.class) || isAnnotatedWith(org.mule.sdk.api.annotation.param.DefaultEncoding.class));
   }
 
   /**

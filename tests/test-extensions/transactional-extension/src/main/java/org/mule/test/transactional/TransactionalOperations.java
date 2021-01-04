@@ -43,7 +43,7 @@ public class TransactionalOperations {
     checkState(!connection.isTransactionBegun(), "transaction begun with no reason");
   }
 
-  public void verifyTransactionBegun(@Connection TestTransactionalConnection connection) {
+  public void verifyTransactionBegun(@org.mule.sdk.api.annotation.param.Connection TestTransactionalConnection connection) {
     checkState(connection.isTransactionBegun(), "transaction not begun");
   }
 

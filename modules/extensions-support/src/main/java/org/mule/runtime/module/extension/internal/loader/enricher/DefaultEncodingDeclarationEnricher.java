@@ -8,6 +8,7 @@ package org.mule.runtime.module.extension.internal.loader.enricher;
 
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.mule.runtime.api.util.FunctionalUtils.or;
 import static org.mule.runtime.extension.api.loader.DeclarationEnricherPhase.POST_STRUCTURE;
 import static org.reflections.ReflectionUtils.getAllFields;
 import static org.reflections.ReflectionUtils.withAnnotation;
@@ -25,7 +26,9 @@ import org.mule.runtime.module.extension.internal.loader.java.property.DefaultEn
 import org.mule.runtime.module.extension.internal.loader.java.property.ImplementingTypeModelProperty;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.Collection;
 
@@ -70,7 +73,11 @@ public final class DefaultEncodingDeclarationEnricher implements DeclarationEnri
   private void doEnrich(BaseDeclaration declaration) {
     declaration.getModelProperty(ImplementingTypeModelProperty.class).ifPresent(p -> {
       ImplementingTypeModelProperty typeProperty = (ImplementingTypeModelProperty) p;
-      Collection<Field> fields = getAllFields(typeProperty.getType(), withAnnotation(DefaultEncoding.class));
+      Collection<Field> fields =
+          getAllFields(typeProperty.getType(),
+                       com.google.common.base.Predicates
+                           .or(withAnnotation(DefaultEncoding.class),
+                               withAnnotation(org.mule.sdk.api.annotation.param.DefaultEncoding.class)));
       if (isEmpty(fields)) {
         return;
       }

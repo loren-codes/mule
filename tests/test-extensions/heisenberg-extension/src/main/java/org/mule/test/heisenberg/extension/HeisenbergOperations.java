@@ -275,7 +275,7 @@ public class HeisenbergOperations implements Disposable {
     return config.getPersonalInfo().getName();
   }
 
-  public void die(@Config HeisenbergExtension config) {
+  public void die(@org.mule.sdk.api.annotation.param.Config HeisenbergExtension config) {
     config.setEndingHealth(HealthStatus.DEAD);
   }
 
@@ -380,7 +380,7 @@ public class HeisenbergOperations implements Disposable {
 
   @MediaType(TEXT_PLAIN)
   public String alias(@Example(OPERATION_PARAMETER_EXAMPLE) String greeting,
-                      @ParameterGroup(name = "Personal Info") PersonalInfo info) {
+                      @org.mule.sdk.api.annotation.param.ParameterGroup(name = "Personal Info") PersonalInfo info) {
     return String.format("%s, my name is %s and I'm %d years old", greeting, info.getName(), info.getAge());
   }
 
@@ -404,7 +404,8 @@ public class HeisenbergOperations implements Disposable {
   }
 
   public void disguice(@ParameterGroup(name = "currentLook") @DisplayName("Look") BarberPreferences currentLook,
-                       @ParameterGroup(name = "disguise", showInDsl = true) @DisplayName("Look") BarberPreferences disguise) {
+                       @org.mule.sdk.api.annotation.param.ParameterGroup(name = "disguise",
+                           showInDsl = true) @DisplayName("Look") BarberPreferences disguise) {
 
   }
 
@@ -465,7 +466,7 @@ public class HeisenbergOperations implements Disposable {
   }
 
   @MediaType(TEXT_PLAIN)
-  public String literalEcho(Literal<String> literalExpression) {
+  public String literalEcho(org.mule.sdk.api.runtime.parameter.Literal<String> literalExpression) {
     return literalExpression.getLiteralValue().orElse(null);
   }
 
@@ -478,12 +479,12 @@ public class HeisenbergOperations implements Disposable {
   }
 
   @OutputResolver(output = HeisenbergOutputResolver.class)
-  public ParameterResolver<Weapon> processWeapon(@Optional ParameterResolver<Weapon> weapon) {
+  public org.mule.sdk.api.runtime.parameter.ParameterResolver<Weapon> processWeapon(@Optional org.mule.sdk.api.runtime.parameter.ParameterResolver<Weapon> weapon) {
     return weapon;
   }
 
   @OutputResolver(output = HeisenbergOutputResolver.class)
-  public ParameterResolver<List<Weapon>> processWeaponList(@Optional ParameterResolver<List<Weapon>> weapons) {
+  public org.mule.sdk.api.runtime.parameter.ParameterResolver<List<Weapon>> processWeaponList(@Optional org.mule.sdk.api.runtime.parameter.ParameterResolver<List<Weapon>> weapons) {
     return weapons;
   }
 

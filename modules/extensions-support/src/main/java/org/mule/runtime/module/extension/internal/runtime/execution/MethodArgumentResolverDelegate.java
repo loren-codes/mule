@@ -15,6 +15,8 @@ import static org.mule.runtime.module.extension.internal.loader.java.MuleExtensi
 import static org.mule.runtime.module.extension.internal.loader.java.MuleExtensionAnnotationParser.toMap;
 import static org.mule.runtime.module.extension.internal.runtime.resolver.ResolverUtils.resolveCursor;
 import static org.mule.runtime.module.extension.internal.util.IntrospectionUtils.isParameterContainer;
+import static org.mule.runtime.module.extension.internal.util.ParameterGroupUtils.hasParameterGroupAnnotation;
+import static org.mule.runtime.module.extension.internal.util.ParameterGroupUtils.isParameterGroupShowInDsl;
 
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
@@ -49,7 +51,6 @@ import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Content;
 import org.mule.runtime.extension.api.annotation.param.DefaultEncoding;
-import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.client.ExtensionsClient;
 import org.mule.runtime.extension.api.notification.NotificationEmitter;
 import org.mule.runtime.extension.api.runtime.operation.ExecutionContext;
@@ -90,6 +91,7 @@ import org.mule.runtime.module.extension.internal.runtime.resolver.ParameterReso
 import org.mule.runtime.module.extension.internal.runtime.resolver.RetryPolicyTemplateArgumentResolver;
 import org.mule.runtime.module.extension.internal.runtime.resolver.RouterCallbackArgumentResolver;
 import org.mule.runtime.module.extension.internal.runtime.resolver.SecurityContextHandlerArgumentResolver;
+import org.mule.runtime.module.extension.internal.runtime.resolver.LegacySourceCallbackContextArgumentResolver;
 import org.mule.runtime.module.extension.internal.runtime.resolver.SourceCallbackContextArgumentResolver;
 import org.mule.runtime.module.extension.internal.runtime.resolver.SourceCompletionCallbackArgumentResolver;
 import org.mule.runtime.module.extension.internal.runtime.resolver.SourceResultArgumentResolver;
@@ -112,7 +114,9 @@ public final class MethodArgumentResolverDelegate implements ArgumentResolverDel
   private static final ArgumentResolver<Object> CONNECTOR_ARGUMENT_RESOLVER = new ConnectionArgumentResolver();
   private static final ArgumentResolver<MediaType> MEDIA_TYPE_ARGUMENT_RESOLVER = new MediaTypeArgumentResolver();
   private static final ArgumentResolver<String> DEFAULT_ENCODING_ARGUMENT_RESOLVER = new DefaultEncodingArgumentResolver();
-  private static final ArgumentResolver<SourceCallbackContext> SOURCE_CALLBACK_CONTEXT_ARGUMENT_RESOLVER =
+  private static final ArgumentResolver<SourceCallbackContext> LEGACY_SOURCE_CALLBACK_CONTEXT_ARGUMENT_RESOLVER =
+      new LegacySourceCallbackContextArgumentResolver();
+  private static final ArgumentResolver<org.mule.sdk.api.runtime.source.SourceCallbackContext> SOURCE_CALLBACK_CONTEXT_ARGUMENT_RESOLVER =
       new SourceCallbackContextArgumentResolver();
   private static final ArgumentResolver<Error> ERROR_ARGUMENT_RESOLVER = new ErrorArgumentResolver();
   private static final ArgumentResolver<CompletionCallback> NON_BLOCKING_CALLBACK_ARGUMENT_RESOLVER =
@@ -127,7 +131,7 @@ public final class MethodArgumentResolverDelegate implements ArgumentResolverDel
       new SecurityContextHandlerArgumentResolver();
   private static final ArgumentResolver<FlowListener> FLOW_LISTENER_ARGUMENT_RESOLVER = new FlowListenerArgumentResolver();
   private static final ArgumentResolver<SourceResult> SOURCE_RESULT_ARGUMENT_RESOLVER =
-      new SourceResultArgumentResolver(ERROR_ARGUMENT_RESOLVER, SOURCE_CALLBACK_CONTEXT_ARGUMENT_RESOLVER);
+      new SourceResultArgumentResolver(ERROR_ARGUMENT_RESOLVER, LEGACY_SOURCE_CALLBACK_CONTEXT_ARGUMENT_RESOLVER);
   private static final ArgumentResolver<BackPressureContext> BACK_PRESSURE_CONTEXT_ARGUMENT_RESOLVER =
       new BackPressureContextArgumentResolver();
   private static final ArgumentResolver<ComponentLocation> COMPONENT_LOCATION_ARGUMENT_RESOLVER =
@@ -192,25 +196,28 @@ public final class MethodArgumentResolverDelegate implements ArgumentResolverDel
 
       ArgumentResolver<?> argumentResolver;
 
-      if (annotations.containsKey(Config.class)) {
+      if (annotations.containsKey(Config.class) || annotations.containsKey(org.mule.sdk.api.annotation.param.Config.class)) {
         argumentResolver = CONFIGURATION_ARGUMENT_RESOLVER;
-      } else if (annotations.containsKey(Connection.class)) {
+      } else if (annotations.containsKey(Connection.class)
+          || annotations.containsKey(org.mule.sdk.api.annotation.param.Connection.class)) {
         argumentResolver = CONNECTOR_ARGUMENT_RESOLVER;
-      } else if (annotations.containsKey(DefaultEncoding.class)) {
+      } else if (annotations.containsKey(DefaultEncoding.class)
+          || annotations.containsKey(org.mule.sdk.api.annotation.param.DefaultEncoding.class)) {
         argumentResolver = DEFAULT_ENCODING_ARGUMENT_RESOLVER;
       } else if (Error.class.isAssignableFrom(parameterType)) {
         argumentResolver = ERROR_ARGUMENT_RESOLVER;
       } else if (SourceCallbackContext.class.equals(parameterType)) {
+        argumentResolver = LEGACY_SOURCE_CALLBACK_CONTEXT_ARGUMENT_RESOLVER;
+      } else if (org.mule.sdk.api.runtime.source.SourceCallbackContext.class.equals(parameterType)) {
         argumentResolver = SOURCE_CALLBACK_CONTEXT_ARGUMENT_RESOLVER;
-      } else if (annotations.keySet().contains(ParameterGroup.class)
-          && !((ParameterGroup) annotations.get(ParameterGroup.class)).showInDsl()
+      } else if (hasParameterGroupAnnotation(annotations.keySet()) && !isParameterGroupShowInDsl(annotations).get()
           && isParameterContainer(annotations.keySet(), typeLoader.load(parameterType))) {
         argumentResolver = parameterGroupResolvers.get(parameter);
-      } else if (ParameterResolver.class.equals(parameterType)) {
+      } else if (ParameterResolver.class.equals(parameterType) || org.mule.sdk.api.runtime.parameter.ParameterResolver.class.equals(parameterType)) {
         argumentResolver = new ParameterResolverArgumentResolver<>(paramNames.get(i));
       } else if (TypedValue.class.equals(parameterType)) {
         argumentResolver = new TypedValueArgumentResolver<>(paramNames.get(i));
-      } else if (Literal.class.equals(parameterType)) {
+      } else if (Literal.class.equals(parameterType) || org.mule.sdk.api.runtime.parameter.Literal.class.equals(parameterType)) {
         argumentResolver = new LiteralArgumentResolver<>(paramNames.get(i), parameterType);
       } else if (CompletionCallback.class.equals(parameterType)) {
         argumentResolver = NON_BLOCKING_CALLBACK_ARGUMENT_RESOLVER;

@@ -39,7 +39,7 @@ public class AsyncHeisenbergSource extends HeisenbergSource {
 
   @OnSuccess
   public void onSuccess(@Optional(defaultValue = PAYLOAD) Long payment, @Optional String sameNameParameter,
-                        @ParameterGroup(name = RICIN_GROUP_NAME) RicinGroup ricin,
+                        @org.mule.sdk.api.annotation.param.ParameterGroup(name = RICIN_GROUP_NAME) RicinGroup ricin,
                         @ParameterGroup(name = "Success Info", showInDsl = true) PersonalInfo successInfo,
                         @Optional boolean fail,
                         SourceCompletionCallback completionCallback,
@@ -58,7 +58,8 @@ public class AsyncHeisenbergSource extends HeisenbergSource {
   @OnError
   public void onError(Error error, @Optional String sameNameParameter, @Optional Methylamine methylamine,
                       @ParameterGroup(name = RICIN_GROUP_NAME) RicinGroup ricin,
-                      @ParameterGroup(name = "Error Info", showInDsl = true) PersonalInfo infoError,
+                      @org.mule.sdk.api.annotation.param.ParameterGroup(name = "Error Info",
+                          showInDsl = true) PersonalInfo infoError,
                       @Optional boolean propagateError,
                       SourceCompletionCallback completionCallback,
                       NotificationEmitter notificationEmitter) {

@@ -191,8 +191,9 @@ public class SdkHeisenbergSource extends Source<String, Object> {
 
   @OnError
   public synchronized void onError(Error error, @Optional String sameNameParameter, @Optional Methylamine methylamine,
-                                   @ParameterGroup(name = RICIN_GROUP_NAME) RicinGroup ricin,
-                                   @ParameterGroup(name = "Error Info", showInDsl = true) PersonalInfo infoError,
+                                   @org.mule.sdk.api.annotation.param.ParameterGroup(name = RICIN_GROUP_NAME) RicinGroup ricin,
+                                   @org.mule.sdk.api.annotation.param.ParameterGroup(name = "Error Info",
+                                       showInDsl = true) PersonalInfo infoError,
                                    @Optional boolean propagateError,
                                    NotificationEmitter notificationEmitter) {
     gatheredMoney = -1;

@@ -69,7 +69,7 @@ public class IronManOperations implements Initialisable, Disposable {
 
   @MediaType(TEXT_PLAIN)
   public void fireMissileMishap(@Config IronMan ironMan,
-                                @Connection Missile missile,
+                                @org.mule.sdk.api.annotation.param.Connection Missile missile,
                                 Villain at,
                                 CompletionCallback<String, Void> callback) {
     // A non blocking operation throwing an exception instead of calling callback#error.

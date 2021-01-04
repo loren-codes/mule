@@ -167,7 +167,7 @@ public class InjectedFieldsModelValidatorTestCase extends AbstractMuleTestCase {
     @Optional
     public String someParameter;
 
-    @DefaultEncoding
+    @org.mule.sdk.api.annotation.param.DefaultEncoding
     private String encoding1;
 
     @DefaultEncoding
@@ -184,7 +184,7 @@ public class InjectedFieldsModelValidatorTestCase extends AbstractMuleTestCase {
 
     }
 
-    public void singleEncoding(@DefaultEncoding String encoding1) {
+    public void singleEncoding(@org.mule.sdk.api.annotation.param.DefaultEncoding String encoding1) {
 
     }
 
@@ -198,7 +198,7 @@ public class InjectedFieldsModelValidatorTestCase extends AbstractMuleTestCase {
     @DefaultEncoding
     private String encoding1;
 
-    @DefaultEncoding
+    @org.mule.sdk.api.annotation.param.DefaultEncoding
     private String encoding2;
 
     @Override
@@ -217,7 +217,7 @@ public class InjectedFieldsModelValidatorTestCase extends AbstractMuleTestCase {
     @DefaultEncoding
     private String encoding1;
 
-    @DefaultEncoding
+    @org.mule.sdk.api.annotation.param.DefaultEncoding
     private String encoding2;
   }
 

@@ -196,7 +196,7 @@ public class PetStoreOperations {
 
   @MediaType(TEXT_PLAIN)
   public String getDefaultEncoding(boolean usePhoneNumber, @Optional PhoneNumber phoneNumber,
-                                   @DefaultEncoding String encoding) {
+                                   @org.mule.sdk.api.annotation.param.DefaultEncoding String encoding) {
     return usePhoneNumber ? phoneNumber.getCountryEncoding() : encoding;
   }
 
