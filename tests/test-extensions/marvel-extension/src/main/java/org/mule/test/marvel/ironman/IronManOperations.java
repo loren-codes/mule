@@ -52,11 +52,11 @@ public class IronManOperations implements Initialisable, Disposable {
   public void fireMissile(@Config IronMan ironMan,
                           @Connection Missile missile,
                           Villain at,
-                          CompletionCallback<String, Void> callback) {
+                          org.mule.sdk.api.runtime.process.CompletionCallback<String, Void> callback) {
     final Runnable launch = () -> {
       try {
         ironMan.track(missile);
-        callback.success(Result.<String, Void>builder()
+        callback.success(org.mule.sdk.api.runtime.operation.Result.<String, Void>builder()
             .output(missile.fireAt(at)).build());
       } catch (Exception e) {
         callback.error(e);
@@ -80,12 +80,12 @@ public class IronManOperations implements Initialisable, Disposable {
   public void fireMissileEpicShot(@Config IronMan ironMan,
                                   @Connection Missile missile,
                                   Villain at,
-                                  CompletionCallback<String, Void> callback) {
+                                  org.mule.sdk.api.runtime.process.CompletionCallback<String, Void> callback) {
     // the last missile being fired in the movie has the hero looking at the missile going forward to its target. Doesn't look
     // epic if he's doing something else.
     try {
       ironMan.track(missile);
-      callback.success(Result.<String, Void>builder()
+      callback.success(org.mule.sdk.api.runtime.operation.Result.<String, Void>builder()
           .output(missile.fireAt(at)).build());
     } catch (Exception e) {
       callback.error(e);

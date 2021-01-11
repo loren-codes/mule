@@ -90,6 +90,10 @@ import org.mule.runtime.module.extension.internal.runtime.resolver.ParameterGrou
 import org.mule.runtime.module.extension.internal.runtime.resolver.ParameterResolverArgumentResolver;
 import org.mule.runtime.module.extension.internal.runtime.resolver.RetryPolicyTemplateArgumentResolver;
 import org.mule.runtime.module.extension.internal.runtime.resolver.RouterCallbackArgumentResolver;
+import org.mule.runtime.module.extension.internal.runtime.resolver.SdkCompletionCallbackArgumentResolver;
+import org.mule.runtime.module.extension.internal.runtime.resolver.SdkExtensionsClientArgumentResolver;
+import org.mule.runtime.module.extension.internal.runtime.resolver.SdkRouterCallbackArgumentResolver;
+import org.mule.runtime.module.extension.internal.runtime.resolver.SdkVoidCallbackArgumentResolver;
 import org.mule.runtime.module.extension.internal.runtime.resolver.SecurityContextHandlerArgumentResolver;
 import org.mule.runtime.module.extension.internal.runtime.resolver.LegacySourceCallbackContextArgumentResolver;
 import org.mule.runtime.module.extension.internal.runtime.resolver.SourceCallbackContextArgumentResolver;
@@ -119,12 +123,18 @@ public final class MethodArgumentResolverDelegate implements ArgumentResolverDel
   private static final ArgumentResolver<org.mule.sdk.api.runtime.source.SourceCallbackContext> SOURCE_CALLBACK_CONTEXT_ARGUMENT_RESOLVER =
       new SourceCallbackContextArgumentResolver();
   private static final ArgumentResolver<Error> ERROR_ARGUMENT_RESOLVER = new ErrorArgumentResolver();
-  private static final ArgumentResolver<CompletionCallback> NON_BLOCKING_CALLBACK_ARGUMENT_RESOLVER =
+  private static final ArgumentResolver<org.mule.sdk.api.runtime.process.CompletionCallback> NON_BLOCKING_CALLBACK_ARGUMENT_RESOLVER =
+      new SdkCompletionCallbackArgumentResolver();
+  private static final ArgumentResolver<CompletionCallback> LEGACY_NON_BLOCKING_CALLBACK_ARGUMENT_RESOLVER =
       new CompletionCallbackArgumentResolver();
-  private static final ArgumentResolver<RouterCompletionCallback> ROUTER_CALLBACK_ARGUMENT_RESOLVER =
+  private static final ArgumentResolver<RouterCompletionCallback> LEGACY_ROUTER_CALLBACK_ARGUMENT_RESOLVER =
       new RouterCallbackArgumentResolver();
-  private static final ArgumentResolver<VoidCompletionCallback> VOID_CALLBACK_ARGUMENT_RESOLVER =
+  private static final ArgumentResolver<org.mule.sdk.api.runtime.process.RouterCompletionCallback> ROUTER_CALLBACK_ARGUMENT_RESOLVER =
+      new SdkRouterCallbackArgumentResolver(LEGACY_ROUTER_CALLBACK_ARGUMENT_RESOLVER);
+  private static final ArgumentResolver<VoidCompletionCallback> LEGACY_VOID_CALLBACK_ARGUMENT_RESOLVER =
       new VoidCallbackArgumentResolver();
+  private static final ArgumentResolver<org.mule.sdk.api.runtime.process.VoidCompletionCallback> VOID_CALLBACK_ARGUMENT_RESOLVER =
+      new SdkVoidCallbackArgumentResolver(LEGACY_VOID_CALLBACK_ARGUMENT_RESOLVER);
   private static final ArgumentResolver<SourceCompletionCallback> ASYNC_SOURCE_COMPLETION_CALLBACK_ARGUMENT_RESOLVER =
       new SourceCompletionCallbackArgumentResolver();
   private static final ArgumentResolver<AuthenticationHandler> SECURITY_CONTEXT_HANDLER =
@@ -213,19 +223,29 @@ public final class MethodArgumentResolverDelegate implements ArgumentResolverDel
       } else if (hasParameterGroupAnnotation(annotations.keySet()) && !isParameterGroupShowInDsl(annotations).get()
           && isParameterContainer(annotations.keySet(), typeLoader.load(parameterType))) {
         argumentResolver = parameterGroupResolvers.get(parameter);
-      } else if (ParameterResolver.class.equals(parameterType) || org.mule.sdk.api.runtime.parameter.ParameterResolver.class.equals(parameterType)) {
+      } else if (ParameterResolver.class.equals(parameterType)
+          || org.mule.sdk.api.runtime.parameter.ParameterResolver.class.equals(parameterType)) {
         argumentResolver = new ParameterResolverArgumentResolver<>(paramNames.get(i));
       } else if (TypedValue.class.equals(parameterType)) {
         argumentResolver = new TypedValueArgumentResolver<>(paramNames.get(i));
       } else if (Literal.class.equals(parameterType) || org.mule.sdk.api.runtime.parameter.Literal.class.equals(parameterType)) {
         argumentResolver = new LiteralArgumentResolver<>(paramNames.get(i), parameterType);
       } else if (CompletionCallback.class.equals(parameterType)) {
+        argumentResolver = LEGACY_NON_BLOCKING_CALLBACK_ARGUMENT_RESOLVER;
+      } else if (org.mule.sdk.api.runtime.process.CompletionCallback.class.equals(parameterType)) {
         argumentResolver = NON_BLOCKING_CALLBACK_ARGUMENT_RESOLVER;
       } else if (ExtensionsClient.class.equals(parameterType)) {
         argumentResolver = new ExtensionsClientArgumentResolver(extensionsClientProcessorsStrategyFactory);
+      } else if (org.mule.sdk.api.client.ExtensionsClient.class.equals(parameterType)) {
+        argumentResolver =
+            new SdkExtensionsClientArgumentResolver(new ExtensionsClientArgumentResolver(extensionsClientProcessorsStrategyFactory));
       } else if (RouterCompletionCallback.class.equals(parameterType)) {
+        argumentResolver = LEGACY_ROUTER_CALLBACK_ARGUMENT_RESOLVER;
+      } else if (org.mule.sdk.api.runtime.process.RouterCompletionCallback.class.equals(parameterType)) {
         argumentResolver = ROUTER_CALLBACK_ARGUMENT_RESOLVER;
       } else if (VoidCompletionCallback.class.equals(parameterType)) {
+        argumentResolver = LEGACY_VOID_CALLBACK_ARGUMENT_RESOLVER;
+      } else if (org.mule.sdk.api.runtime.process.VoidCompletionCallback.class.equals(parameterType)) {
         argumentResolver = VOID_CALLBACK_ARGUMENT_RESOLVER;
       } else if (MediaType.class.equals(parameterType)) {
         argumentResolver = MEDIA_TYPE_ARGUMENT_RESOLVER;

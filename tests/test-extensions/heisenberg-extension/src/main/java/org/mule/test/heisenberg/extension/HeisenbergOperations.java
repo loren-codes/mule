@@ -328,8 +328,30 @@ public class HeisenbergOperations implements Disposable {
     return output instanceof TypedValue ? (String) ((TypedValue) output).getValue() : (String) output;
   }
 
+  @MediaType(TEXT_PLAIN)
+  public String sdkExecuteForeingOrders(String extensionName, String operationName, @Optional String configName,
+                                        org.mule.sdk.api.client.ExtensionsClient extensionsClient,
+                                        Map<String, Object> operationParameters)
+      throws MuleException {
+    Object output =
+        extensionsClient.execute(extensionName, operationName, createSdkOperationParameters(configName, operationParameters))
+            .getOutput();
+    return output instanceof TypedValue ? (String) ((TypedValue) output).getValue() : (String) output;
+  }
+
   private OperationParameters createOperationParameters(String configName, Map<String, Object> operationParameters) {
     DefaultOperationParametersBuilder builder = DefaultOperationParameters.builder();
+    if (configName != null) {
+      builder.configName(configName);
+    }
+    operationParameters.forEach((key, value) -> builder.addParameter(key, value));
+    return builder.build();
+  }
+
+  private org.mule.sdk.api.client.OperationParameters createSdkOperationParameters(String configName,
+                                                                                   Map<String, Object> operationParameters) {
+    org.mule.sdk.api.client.DefaultOperationParametersBuilder builder =
+        org.mule.sdk.api.client.DefaultOperationParameters.builder();
     if (configName != null) {
       builder.configName(configName);
     }
@@ -424,7 +446,7 @@ public class HeisenbergOperations implements Disposable {
   }
 
   @MediaType(TEXT_PLAIN)
-  public void callGusFringNonBlocking(CompletionCallback<Void, Void> callback) {
+  public void callGusFringNonBlocking(org.mule.sdk.api.runtime.process.CompletionCallback<Void, Void> callback) {
     executor.get().execute(() -> {
       callback.error(new HeisenbergException(CALL_GUS_MESSAGE));
     });

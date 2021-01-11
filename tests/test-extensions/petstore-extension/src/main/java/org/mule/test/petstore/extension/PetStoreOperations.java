@@ -81,8 +81,9 @@ public class PetStoreOperations {
 
   @MediaType(ANY)
   public void scopeWithMuleStereotype(@AllowedStereotypes(ValidatorStereotype.class) Chain validators,
-                                      CompletionCallback<String, String> completionCallback) {
-    completionCallback.success((Result.<String, String>builder().output("Ok").attributes("Attributes").build()));
+                                      org.mule.sdk.api.runtime.process.CompletionCallback<String, String> completionCallback) {
+    completionCallback.success((org.mule.sdk.api.runtime.operation.Result.<String, String>builder().output("Ok")
+        .attributes("Attributes").build()));
   }
 
   @MediaType(TEXT_PLAIN)
